@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shirwac AI – Sirta Shukaansiga</title>
+<style>
+:root{--pri:#d4143c;--pri2:#ff5a75;--bg:#fff3f5;--card:#fff;--tx:#2a1215;--mut:#7a5459;--line:#f3c9d0;--out:#e3eeff;--outtx:#0f2f5e}
+@media (prefers-color-scheme:dark){:root{--bg:#1a0c0f;--card:#2a1519;--tx:#fbeaec;--mut:#c49aa1;--line:#4a2a30;--out:#1d3355;--outtx:#dce9ff}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;line-height:1.5}
+header{background:linear-gradient(160deg,var(--pri),var(--pri2));color:#fff;padding:calc(env(safe-area-inset-top,0px) + 22px) 16px 26px;text-align:center;border-radius:0 0 28px 28px}
+.logo{display:inline-block;background:#fff;color:var(--pri);font-weight:900;font-size:1.5rem;padding:6px 18px;border-radius:14px;margin-bottom:8px}
+header h1{margin:0;font-size:1.1rem}header p{margin:4px 0 0;opacity:.9}
+main{max-width:520px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:14px;padding:12px 8px;font:inherit;font-weight:700;cursor:pointer}
+.tab[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:14px}
+.up{display:block;text-align:center;border:2px dashed var(--line);border-radius:14px;padding:18px;color:var(--mut);cursor:pointer}
+.up img{max-width:100%;max-height:260px;border-radius:12px}
+textarea{width:100%;min-height:60px;margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:10px;font:inherit;background:var(--bg);color:var(--tx)}
+.sl{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--mut)}.sl input{flex:1;accent-color:var(--pri)}
+.out{background:var(--out);color:var(--outtx);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.out button{border:0;background:none;color:inherit;font-size:1.2rem;cursor:pointer}
+.go{width:100%;border:0;border-radius:999px;padding:15px;font:inherit;font-weight:800;color:#fff;background:linear-gradient(90deg,var(--pri),var(--pri2));cursor:pointer}
+.go:disabled{opacity:.6}.note{font-size:.82rem;color:var(--mut);text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Shirwac</div>
+  <h1>Shirwac AI: Sirta Shukaansiga</h1>
+  <p>Hel fariimo soo jiidasho leh</p>
+</header>
+<main>
+  <div class="tabs" id="tabs">
+    <button class="tab" aria-pressed="true" data-m="amaan">Ereyo aad ku amaanto</button>
+    <button class="tab" aria-pressed="false" data-m="bilow">Ereyo aad ku bilowdo sheekada</button>
+  </div>
+  
+  <div class="card">
+    <label class="up">
+      <input type="file" id="file" accept="image/*" hidden>
+      <span id="uptxt">📷 Dooro screenshot-ka sheekada (gallery)</span>
+      <img id="prev" alt="" hidden>
+    </label>
+    <textarea id="ctx" placeholder="Ikhtiyaari: waxa aad rabto inaad sheegto..."></textarea>
+  </div>
+
+  <div class="card">
+    <div class="sl">
+      <span>Deggan</span>
+      <input type="range" id="lvl" min="0" max="2" value="1">
+      <span>🌶️ Jacayl</span>
+    </div>
+  </div>
+
+  <div id="res"></div>
+  
+  <button class="go" id="gen">Hel Fariin</button>
+  <p class="note" id="msg"></p>
+  <p class="note">Fariimaha waa talo. Ixtiraam ku isticmaal, gabadhana ha ku riixin haddii aysan rabin.</p>
+</main>
+
+<script>
+var $=function(i){return document.getElementById(i)},mode='amaan',img=null,avoid=[];
+$('tabs').onclick=function(e){var b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(function(t){t.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');mode=b.dataset.m};
+
+$('file').onchange=function(){var f=this.files[0];if(!f)return;var u=URL.createObjectURL(f),im=new Image();
+im.onload=function(){var s=Math.min(1,1100/Math.max(im.width,im.height)),c=document.createElement('canvas');
+c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+img=c.toDataURL('image/jpeg',.8).split(',')[1];$('prev').src=u;$('prev').hidden=false;$('uptxt').hidden=true};im.src=u};
+
+$('gen').onclick=async function(){var g=this;g.disabled=true;$('msg').textContent='Waa la sameynayaa...';
+try{var r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({image:img,mime:'image/jpeg',level:+$('lvl').value,mode:mode,ctx:$('ctx').value,avoid:avoid})});
+var j=await r.json();if(!r.ok)throw new Error(j.error||'Khalad');
+$('res').innerHTML='';j.messages.forEach(function(m){avoid.push(m);var d=document.createElement('div');d.className='out';
+var s=document.createElement('span');s.textContent=m;var b=document.createElement('button');b.textContent='📋';
+b.onclick=function(){navigator.clipboard.writeText(m);b.textContent='✓'};d.append(s,b);$('res').appendChild(d)});
+g.textContent='Hel Midkale';$('msg').textContent=''}catch(e){$('msg').textContent=e.message}g.disabled=false};
+</script>
+</body>
+</html>
