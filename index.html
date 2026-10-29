@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shirwac AI</title>
+  <style>
+    body {
+      background: #10131c;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px 15px;
+    }
+    h1 { color: #8b7aff; margin-top: 60px; }
+    input {
+      padding: 14px;
+      width: 85%;
+      max-width: 350px;
+      border-radius: 10px;
+      border: 1px solid #555;
+      background: #202536;
+      color: white;
+    }
+    button {
+      margin-top: 12px;
+      padding: 13px 22px;
+      background: #7865f5;
+      color: white;
+      border: none;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>✦ Shirwac AI</h1>
+  <p>Ku soo dhowow Shirwac AI!</p>
+  <p>Maxaan maanta kaa caawin karaa?</p>
+
+  <input id="q" placeholder="Su'aashaada qor...">
+  <br>
+  <button onclick="send()">Dir fariinta</button>
+  <p id="answer"></p>
+
+  <script>
+    function send() {
+      const q = document.getElementById('q').value.trim();
+      if (!q) return;
+      document.getElementById('answer').textContent =
+        'Waad mahadsan tahay! Shirwac AI wali waxaa lagu xirayaa AI dhab ah.';
+    }
+  </script>
+</body>
+</html>
